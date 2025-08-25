@@ -1,0 +1,391 @@
+:root {
+  --bg-color: #0a0a0a;
+  --bg-secondary: #1a1a1a;
+  --neon-green: #00ff41;
+  --neon-pink: #ff10f0;
+  --neon-blue: #00d4ff;
+  --neon-yellow: #ffff00;
+  --grid-color: #00ff41;
+  --text-primary: #ffffff;
+  --shadow-glow: 0 0 20px;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: 'Press Start 2P', monospace;
+  background: var(--bg-color);
+  color: var(--text-primary);
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  overflow: hidden;
+  position: relative;
+}
+
+body::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: 
+    repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 2px,
+      rgba(0, 255, 65, 0.03) 2px,
+      rgba(0, 255, 65, 0.03) 4px
+    );
+  pointer-events: none;
+  z-index: 1;
+}
+
+#root {
+  z-index: 2;
+  position: relative;
+}
+
+.game {
+  text-align: center;
+  padding: 20px;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.game-header {
+  margin-bottom: 30px;
+  animation: titleGlow 2s ease-in-out infinite alternate;
+}
+
+.game-title {
+  font-size: 2.5rem;
+  color: var(--neon-green);
+  text-shadow: 
+    0 0 10px var(--neon-green),
+    0 0 20px var(--neon-green),
+    0 0 30px var(--neon-green);
+  margin-bottom: 10px;
+  letter-spacing: 3px;
+}
+
+.arcade-subtitle {
+  font-size: 0.8rem;
+  color: var(--neon-pink);
+  text-shadow: 
+    0 0 10px var(--neon-pink),
+    0 0 20px var(--neon-pink);
+  letter-spacing: 2px;
+}
+
+.difficulty-selector {
+  display: flex;
+  justify-content: center;
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.difficulty-btn {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 0.7rem;
+  padding: 12px 20px;
+  background: transparent;
+  color: var(--neon-blue);
+  border: 2px solid var(--neon-blue);
+  cursor: pointer;
+  transition: all 0.3s;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.difficulty-btn:hover {
+  background: var(--neon-blue);
+  color: var(--bg-color);
+  box-shadow: 
+    0 0 10px var(--neon-blue),
+    0 0 20px var(--neon-blue),
+    inset 0 0 10px rgba(0, 212, 255, 0.3);
+  transform: scale(1.05);
+}
+
+.difficulty-btn.active {
+  background: var(--neon-blue);
+  color: var(--bg-color);
+  box-shadow: 
+    0 0 15px var(--neon-blue),
+    0 0 30px var(--neon-blue);
+  animation: pulse 1.5s infinite;
+}
+
+.game-status {
+  font-size: 1rem;
+  margin-bottom: 30px;
+  padding: 15px;
+  border: 2px solid var(--neon-green);
+  background: rgba(0, 255, 65, 0.1);
+  text-shadow: 0 0 10px currentColor;
+}
+
+.status-win {
+  color: var(--neon-yellow);
+  border-color: var(--neon-yellow);
+  background: rgba(255, 255, 0, 0.1);
+  animation: flash 0.5s infinite;
+}
+
+.status-lose {
+  color: var(--neon-pink);
+  border-color: var(--neon-pink);
+  background: rgba(255, 16, 240, 0.1);
+}
+
+.status-draw {
+  color: var(--neon-blue);
+  border-color: var(--neon-blue);
+  background: rgba(0, 212, 255, 0.1);
+  animation: shake 0.5s;
+}
+
+.status-thinking {
+  color: var(--neon-blue);
+  border-color: var(--neon-blue);
+}
+
+.thinking-dots {
+  display: inline-block;
+  margin-left: 10px;
+}
+
+.thinking-dots span {
+  animation: blink 1.4s infinite;
+  animation-fill-mode: both;
+}
+
+.thinking-dots span:nth-child(2) {
+  animation-delay: 0.2s;
+}
+
+.thinking-dots span:nth-child(3) {
+  animation-delay: 0.4s;
+}
+
+.board {
+  position: relative;
+  display: inline-block;
+  padding: 20px;
+  background: var(--bg-secondary);
+  border: 3px solid var(--grid-color);
+  box-shadow: 
+    0 0 20px rgba(0, 255, 65, 0.5),
+    inset 0 0 20px rgba(0, 255, 65, 0.1);
+  margin-bottom: 30px;
+}
+
+.board-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 100px);
+  grid-template-rows: repeat(3, 100px);
+  gap: 5px;
+  background: var(--grid-color);
+  padding: 5px;
+}
+
+.cell {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 2.5rem;
+  background: var(--bg-color);
+  border: none;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.3s;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cell:not(.cell-disabled):not(:disabled):hover {
+  background: rgba(0, 255, 65, 0.1);
+  box-shadow: inset 0 0 20px rgba(0, 255, 65, 0.3);
+}
+
+.cell-x {
+  color: var(--neon-pink);
+  text-shadow: 
+    0 0 10px var(--neon-pink),
+    0 0 20px var(--neon-pink),
+    0 0 30px var(--neon-pink);
+}
+
+.cell-o {
+  color: var(--neon-blue);
+  text-shadow: 
+    0 0 10px var(--neon-blue),
+    0 0 20px var(--neon-blue),
+    0 0 30px var(--neon-blue);
+}
+
+.cell-winning {
+  animation: winFlash 0.5s infinite;
+}
+
+.cell-content {
+  animation: placeSymbol 0.3s ease-out;
+}
+
+.winning-line {
+  position: absolute;
+  background: var(--neon-yellow);
+  box-shadow: 
+    0 0 20px var(--neon-yellow),
+    0 0 40px var(--neon-yellow);
+  z-index: 10;
+  animation: drawLine 0.5s ease-out;
+}
+
+.winning-line-row-0 {
+  top: 70px;
+  left: 25px;
+  right: 25px;
+  height: 5px;
+}
+
+.winning-line-row-1 {
+  top: 175px;
+  left: 25px;
+  right: 25px;
+  height: 5px;
+}
+
+.winning-line-row-2 {
+  top: 280px;
+  left: 25px;
+  right: 25px;
+  height: 5px;
+}
+
+.winning-line-col-0 {
+  left: 70px;
+  top: 25px;
+  bottom: 25px;
+  width: 5px;
+}
+
+.winning-line-col-1 {
+  left: 175px;
+  top: 25px;
+  bottom: 25px;
+  width: 5px;
+}
+
+.winning-line-col-2 {
+  left: 280px;
+  top: 25px;
+  bottom: 25px;
+  width: 5px;
+}
+
+.winning-line-diag-1 {
+  top: 50%;
+  left: 25px;
+  right: 25px;
+  height: 5px;
+  transform: rotate(45deg);
+  transform-origin: center;
+}
+
+.winning-line-diag-2 {
+  top: 50%;
+  left: 25px;
+  right: 25px;
+  height: 5px;
+  transform: rotate(-45deg);
+  transform-origin: center;
+}
+
+.new-game-btn {
+  font-family: 'Press Start 2P', monospace;
+  font-size: 1rem;
+  padding: 15px 30px;
+  background: transparent;
+  color: var(--neon-yellow);
+  border: 3px solid var(--neon-yellow);
+  cursor: pointer;
+  transition: all 0.3s;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  animation: pulse 2s infinite;
+}
+
+.new-game-btn:hover {
+  background: var(--neon-yellow);
+  color: var(--bg-color);
+  box-shadow: 
+    0 0 20px var(--neon-yellow),
+    0 0 40px var(--neon-yellow);
+  transform: scale(1.1);
+}
+
+.game-info {
+  margin-top: 30px;
+}
+
+.player-info {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  font-size: 0.8rem;
+}
+
+.player-x {
+  color: var(--neon-pink);
+  text-shadow: 0 0 10px var(--neon-pink);
+}
+
+.player-o {
+  color: var(--neon-blue);
+  text-shadow: 0 0 10px var(--neon-blue);
+}
+
+@media (max-width: 768px) {
+  .game-title {
+    font-size: 1.8rem;
+  }
+
+  .arcade-subtitle {
+    font-size: 0.6rem;
+  }
+
+  .board-grid {
+    grid-template-columns: repeat(3, 80px);
+    grid-template-rows: repeat(3, 80px);
+  }
+
+  .cell {
+    font-size: 2rem;
+  }
+
+  .difficulty-btn {
+    font-size: 0.6rem;
+    padding: 10px 15px;
+  }
+
+  .game-status {
+    font-size: 0.8rem;
+  }
+
+  .new-game-btn {
+    font-size: 0.8rem;
+    padding: 12px 24px;
+  }
+
+  .player-info {
+    font-size: 0.7rem;
+  }
+}
